@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f6fb">
+<meta name="description" content="用可拖动的时间轴安排你的每一天，安排 TOEFL、GRE、IELTS 和 GMAT 的每日学习，记录完成进度与复盘。">
+<title>时序 · 学习计划</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23634ee7'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='white' stroke-width='1.8'/%3E%3Cpath d='M16 11v5l3 2' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+<script defer src="quotes.js"></script>
+<script defer src="schedule-input.js"></script>
+<script defer src="app.js"></script>
+<script defer src="voice.js"></script>
+<script defer src="backup.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="top-inner">
+    <div class="brand"><span class="brand-mark" data-icon="clock"></span><span>时序</span><span class="brand-sub">学习计划</span></div>
+    <button class="profile-trigger" id="profile-trigger" type="button" aria-haspopup="dialog"><span class="avatar" id="avatar"></span><span id="profile-label">我的计划</span><span data-icon="chevronDown"></span></button>
+  </div>
+</header>
+<div class="workspace">
+  <section class="hero" aria-labelledby="hero-title">
+    <svg id="sky-stars" class="sky-stars" viewBox="0 0 1200 420" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="hero-main">
+      <div class="hero-date"><span data-icon="calendar"></span><span id="hero-date"></span></div>
+      <h1 id="hero-title" lang="en">One day</h1>
+      <figure class="hero-quote" aria-label="每日英文名言">
+        <blockquote lang="en" id="quote"></blockquote>
+        <figcaption lang="en"><span id="quote-author"></span><span aria-hidden="true"> · </span><a id="quote-source" target="_blank" rel="noopener noreferrer"></a></figcaption>
+      </figure>
+      <div class="day-stats" aria-label="北京时间的一天">
+        <div><span>今天已过</span><strong id="day-elapsed" role="timer"></strong></div>
+        <div><span>今天剩余</span><strong id="day-remaining" role="timer"></strong></div>
+      </div>
+      <div class="countdown">
+        <span class="countdown-icon" data-icon="hourglass"></span><span id="deadline-name">考试倒计时</span>
+        <div class="countdown-value" id="countdown-value"></div>
+        <div class="countdown-date" id="countdown-date"></div>
+        <button id="deadline-edit" class="hero-button" type="button" aria-label="设定考试倒计时"><span data-icon="settings"></span><span>设定</span></button>
+      </div>
+    </div>
+    <section class="climb" aria-labelledby="climb-title">
+      <div class="climb-header">
+        <div><h2 id="climb-title">西西弗斯的山路</h2><p id="climb-progress"></p></div>
+      </div>
+      <svg id="climb-mountain" class="mountain" viewBox="46 24 686 314" aria-hidden="true">
+        <defs>
+          <linearGradient id="mountain-fill" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+            <stop stop-color="#6570ad"/><stop offset=".52" stop-color="#303a6c"/><stop offset="1" stop-color="#121a3e"/>
+          </linearGradient>
+          <linearGradient id="mountain-shadow" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#161c45"/><stop offset="1" stop-color="#242855"/>
+          </linearGradient>
+          <linearGradient id="trail-glow">
+            <stop stop-color="#d18464"/><stop offset=".7" stop-color="#f1bd80"/><stop offset="1" stop-color="#fff0c2"/>
+          </linearGradient>
+          <radialGradient id="moon-halo"><stop stop-color="#a5b7ff" stop-opacity=".36"/><stop offset="1" stop-color="#a5b7ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="stone-face" cx=".36" cy=".23" r=".8">
+            <stop stop-color="#fcdfab"/><stop offset=".68" stop-color="#d4a779"/><stop offset="1" stop-color="#a97859"/>
+          </radialGradient>
+          <path id="trail-shape" d="M109 303C146 295 169 272 195 261S231 251 259 238S299 225 321 208S372 196 401 170S451 156 472 138S510 115 529 102S544 87 552 74"/>
+        </defs>
+        <circle cx="670" cy="76" r="60" fill="url(#moon-halo)"/>
+        <path fill="#ffedcf" d="M683 53A25 25 0 1 0 691 89A21 21 0 0 1 683 53Z"/>
+        <path fill="#26325b" d="M58 293L122 249 163 264 222 202 255 228 315 176 364 217 421 158 474 208 523 174 582 208 655 154 731 219V338H58Z"/>
+        <path fill="#151d41" d="M58 315L110 271 166 275 243 219 283 257 346 200 408 242 491 185 538 223 596 178 638 210 689 178 731 208V338H58Z"/>
+        <path fill="url(#mountain-fill)" d="M58 326L118 293 168 274 209 218 241 215 287 193 331 150 370 169 430 122 461 136 550 62 593 105 628 129 667 192 705 221 731 262V338H58Z"/>
+        <path fill="url(#mountain-shadow)" d="M550 62L545 126 520 145 571 169 546 199 574 232 559 275 595 338H731V262L705 221 667 192 628 129 593 105Z"/>
+        <path fill="#8390c0" fill-opacity=".38" d="M550 62L461 136 430 122 370 169 331 150 290 190 342 177 366 184 432 144 455 150 516 107 534 110Z"/>
+        <path fill="#b7bfdf" fill-opacity=".45" d="M550 62L525 88 517 108 541 98 546 115 558 94 590 102Z"/>
+        <path fill="#26305a" d="M143 306L210 286 252 268 307 274 358 229 402 206 394 248 437 275 420 338H58Z" opacity=".52"/>
+        <path class="mountain-contours" d="M130 316L216 295 290 258 355 252M201 321L290 290 377 275 453 220M291 329L373 312 434 300 484 266M581 198L619 219 653 235M588 239L641 258 672 286M575 280L604 301 652 313M459 182L487 164 514 161M282 216L299 209 315 188M436 196L482 181 509 154"/>
+        <path fill="#0d1533" d="M58 326L136 317 196 328 250 316 313 330 380 323 466 330 529 317 593 330 664 316 731 327V338H58Z"/>
+        <use href="#trail-shape" class="trail-bed"/>
+        <use href="#trail-shape" class="trail-track"/>
+        <use id="trail-done" href="#trail-shape" class="trail-done"/>
+        <g id="trail-ticks"></g>
+        <g id="trail-boulder">
+          <ellipse cx="0" cy="2" rx="24" ry="4" fill="#080d21" fill-opacity=".7"/>
+          <g class="climber">
+            <path id="runner-back-leg" class="runner-leg runner-back-leg" d="M-43 -12L-49 -5L-55 -1">
+              <animate attributeName="d" dur="0.68s" repeatCount="indefinite"
+                values="M-43 -12L-49 -5L-55 -1; M-43 -12L-47 -7L-50 -13; M-43 -12L-34 -8L-33 -11; M-43 -12L-35 -6L-29 0; M-43 -12L-38 -3L-43 1; M-43 -12L-49 -5L-55 -1"/>
+            </path>
+            <path id="runner-front-leg" class="runner-leg" d="M-43 -12L-35 -6L-29 0">
+              <animate attributeName="d" dur="0.68s" repeatCount="indefinite"
+                values="M-43 -12L-35 -6L-29 0; M-43 -12L-38 -3L-43 1; M-43 -12L-49 -5L-55 -1; M-43 -12L-47 -7L-50 -13; M-43 -12L-34 -8L-33 -11; M-43 -12L-35 -6L-29 0"/>
+            </path>
+            <g id="runner-body" transform="translate(0 0)">
+              <animateTransform attributeName="transform" type="translate" dur="0.34s" values="0 0; 0 -1.6; 0 0" repeatCount="indefinite"/>
+              <circle cx="-33" cy="-24" r="4.1" fill="#ffe0b9"/>
+              <path class="runner-torso" d="M-35 -18L-43 -12M-35 -18L-29 -15L-23 -18"/>
+            </g>
+          </g>
+          <path d="M-21 -5L-26 -16 -24 -30 -15 -41 -3 -45 11 -42 23 -34 27 -21 22 -8 12 0 -6 1Z" fill="#efc38f" stroke="#fff1cc" stroke-width="1.5"/>
+          <circle cx="0" cy="-21" r="19" fill="url(#stone-face)" stroke="#9f714f" stroke-width="1"/>
+          <g id="boulder-hours"></g>
+          <path id="boulder-hour" d="M0 -21V-31" class="boulder-hand boulder-hour"/>
+          <path id="boulder-minute" d="M0 -21V-35" class="boulder-hand"/>
+          <circle cx="0" cy="-21" r="2" fill="#382738"/>
+        </g>
+      </svg>
+      <div class="climb-footer">
+        <span id="climb-now"></span><span id="climb-range">山路 00:00–24:00</span>
+      </div>
+    </section>
+  </section>
+
+  <nav class="planner-views" aria-label="备考视图">
+    <a href="#all" data-view="all" aria-current="true">全部</a>
+    <a href="#toefl" data-view="toefl" lang="en">TOEFL</a>
+    <a href="#gre" data-view="gre" lang="en">GRE</a>
+    <a href="#ielts" data-view="ielts" lang="en">IELTS</a>
+    <a href="#gmat" data-view="gmat" lang="en">GMAT</a>
+  </nav>
+
+  <div class="columns">
+    <aside class="left-column" aria-label="查看日期和科目">
+      <section class="panel calendar-panel">
+        <div class="panel-heading"><h2><span class="title-icon" data-icon="calendar"></span>日历</h2><button class="text-button" id="sidebar-today" type="button">今天</button></div>
+        <div class="month-controls"><strong id="month-label"></strong><div class="month-buttons"><button id="prev-month" class="icon-button" type="button" aria-label="上个月" data-icon="chevronLeft"></button><button id="next-month" class="icon-button" type="button" aria-label="下个月" data-icon="chevronRight"></button></div></div>
+        <div class="weekdays" aria-hidden="true"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+        <div class="calendar-grid" id="calendar-grid" aria-label="选择日期"></div>
+        <div class="calendar-key"><span></span>已有任务或复盘</div>
+      </section>
+      <section class="panel subject-panel">
+        <div class="panel-heading"><h2><span class="title-icon" data-icon="layers"></span>科目筛选</h2></div>
+        <div id="subject-list" class="subject-list" aria-label="按科目筛选时间轴"></div>
+      </section>
+    </aside>
+
+    <main id="main" class="panel timeline-panel">
+      <div class="timeline-header">
+        <div><h2><span class="title-icon" data-icon="clock"></span>日程时间轴</h2><div id="timeline-date" class="timeline-date"></div></div>
+        <div class="timeline-actions">
+          <button type="button" class="secondary-button" id="voice-open" aria-haspopup="dialog"><span data-icon="microphone"></span>语音排程</button>
+          <button type="button" class="primary-button" id="add-task"><span data-icon="plus"></span>添加任务</button>
+        </div>
+      </div>
+      <section class="day-overview" aria-labelledby="overview-label">
+        <div class="overview-heading">
+          <label id="overview-label" for="time-range"><span data-icon="sliders"></span>全天总览</label>
+          <button class="overview-now-button" id="jump-now" type="button" hidden>现在 <span id="now-time"></span></button>
+        </div>
+        <div class="overview-scale" aria-hidden="true">
+          <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+        </div>
+        <div class="overview-track">
+          <div class="overview-periods" aria-hidden="true"><span>凌晨</span><span>上午</span><span>下午</span><span>晚上</span></div>
+          <div class="overview-window" id="overview-window" aria-hidden="true"></div>
+          <div class="overview-blocks" id="overview-blocks" aria-hidden="true"></div>
+          <div class="overview-now" id="overview-now" aria-hidden="true" hidden></div>
+          <div class="overview-cursor" id="overview-cursor" aria-hidden="true"></div>
+          <input type="range" min="0" max="1440" step="15" id="time-range" value="480" aria-describedby="overview-help">
+        </div>
+        <div class="overview-footer">
+          <span id="overview-help" class="visually-hidden">点击或滑动定位时间。彩色块代表已安排的任务。</span>
+          <span id="overview-totals"></span>
+          <span class="overview-position">定位 <output for="time-range" id="range-time">08:00</output></span>
+        </div>
+      </section>
+      <div class="demo-bar" id="demo-bar" hidden><span>示例日程 · 点击任务即可编辑</span><button class="text-button" id="clear-demo" type="button">清除示例</button></div>
+      <p class="timeline-empty" id="timeline-empty" hidden>当前没有任务，点击「添加任务」开始安排。</p>
+      <div class="timeline-scroll" id="timeline-scroll" tabindex="0" aria-label="24 小时日程，使用滚动查看其他时段">
+        <div class="schedule-grid" id="schedule-grid">
+          <div class="time-rows" id="time-rows" aria-hidden="true"></div>
+          <div class="task-track" id="task-track"><div id="time-marker" class="time-marker" aria-hidden="true" hidden></div><div id="timeline-now" class="timeline-now" aria-hidden="true" hidden></div><div class="events" id="events"></div></div>
+        </div>
+      </div>
+      <div class="timeline-footer"><span data-icon="info"></span><span>点击空白处添加 · 拖动任务改时间 · 拉动任务底边改时长</span></div>
+    </main>
+
+    <aside class="right-column" aria-label="每日结果和复盘">
+      <section class="panel results-panel">
+        <div class="panel-heading"><h2><span class="title-icon" data-icon="chart"></span>每日结果</h2></div>
+        <div class="progress-row"><span>完成任务</span><strong id="done-count"></strong></div>
+        <div class="progress-track" id="progress" role="progressbar" aria-label="任务完成比例" aria-valuemin="0" aria-valuemax="100"><div id="progress-fill"></div></div>
+        <div class="stats">
+          <div><span class="stat-label">计划时长</span><strong id="planned-time"></strong></div>
+          <div><span class="stat-label">已完成时长</span><strong id="done-time"></strong></div>
+        </div>
+        <div id="subject-results"></div>
+        <p class="demo-note" id="demo-note" hidden>当前统计包含示例任务。</p>
+      </section>
+      <section class="panel review-panel">
+        <div class="panel-heading"><h2><span class="title-icon" data-icon="notebook"></span>每日复盘</h2></div>
+        <label for="review-outcome">今日成果</label>
+        <textarea id="review-outcome" rows="3" maxlength="4000" placeholder="完成了什么？"></textarea>
+        <label for="review-next">明日改进</label>
+        <textarea id="review-next" rows="3" maxlength="4000" placeholder="明天准备怎么调整？"></textarea>
+        <div class="save-state" id="review-status" aria-live="polite"><span data-icon="check"></span><span>自动保存至本浏览器</span></div>
+      </section>
+    </aside>
+  </div>
+</div>
+<dialog id="task-dialog">
+  <form id="task-form">
+    <div class="dialog-header"><div><h2 id="task-heading">添加任务</h2><p id="task-date"></p></div><button type="button" class="icon-button" data-close data-icon="close" aria-label="关闭"></button></div>
+    <label for="task-name">任务名称</label>
+    <input id="task-name" maxlength="120" required placeholder="例如：听力讲座精听" autofocus>
+    <label for="task-subject">科目</label>
+    <select id="task-subject" required></select>
+    <div class="time-fields">
+      <div><label for="task-start">开始时间（24 小时制）</label><input id="task-start" required maxlength="5" placeholder="08:00" autocomplete="off" aria-describedby="time-format"></div>
+      <div><label for="task-end">结束时间</label><input id="task-end" required maxlength="5" placeholder="09:00" autocomplete="off" aria-describedby="time-format"></div>
+    </div>
+    <p class="field-hint" id="time-format">例如 08:30，午夜结束可填写 24:00</p>
+    <label for="task-note">任务备注 <small>选填</small></label>
+    <textarea id="task-note" rows="2" maxlength="1000" placeholder="题量、材料或完成标准"></textarea>
+    <label id="task-done-row" class="check-label" for="task-done"><input id="task-done" type="checkbox">标记为完成</label>
+    <p id="task-error" class="form-error" role="alert"></p>
+    <div class="dialog-actions"><button class="danger-button" id="delete-task" type="button" hidden>删除任务</button><div class="dialog-spacer"></div><button class="secondary-button" type="button" data-close>取消</button><button class="primary-button" type="submit">保存任务</button></div>
+  </form>
+</dialog>
+<dialog id="voice-dialog" class="voice-dialog">
+  <form id="voice-form">
+    <div class="dialog-header"><div><h2>语音排程</h2><p>把一段话拆成日程，核对后加入日历。</p></div><button type="button" class="icon-button" data-close data-icon="close" aria-label="关闭"></button></div>
+    <div class="voice-input-heading">
+      <label for="voice-text">说话或输入文字</label>
+      <button class="secondary-button" type="button" id="voice-record"><span data-icon="microphone"></span><span id="voice-record-label">开始说话</span></button>
+    </div>
+    <textarea id="voice-text" rows="3" maxlength="3500" placeholder="明天上午九点到十点做托福阅读，下午两点练 GRE 数学 45 分钟。后天晚上八点写雅思作文。"></textarea>
+    <p class="field-hint voice-disclosure">语音转写由浏览器提供，可能联网处理。文字可编辑，确认前只生成预览。</p>
+    <p id="voice-status" class="voice-status" role="status"></p>
+    <div id="voice-preview" hidden>
+      <h3>待加入的任务</h3>
+      <div class="voice-rows" id="voice-rows"></div>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="secondary-button" data-close>关闭</button>
+      <div class="dialog-spacer"></div>
+      <button type="submit" class="secondary-button" id="voice-parse" formnovalidate>解析任务</button>
+      <button type="button" class="primary-button" id="voice-save" hidden>加入日历</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="deadline-dialog">
+  <form id="deadline-form">
+    <div class="dialog-header"><h2>设定倒计时</h2><button type="button" class="icon-button" data-close data-icon="close" aria-label="关闭"></button></div>
+    <label for="deadline-exam">考试</label>
+    <select id="deadline-exam"></select>
+    <label for="deadline-input-name">目标名称</label>
+    <input id="deadline-input-name" maxlength="44" placeholder="托福考试" autofocus>
+    <label for="deadline-input-date">目标日期</label>
+    <input id="deadline-input-date" type="date" required min="1900-01-01" max="9999-12-31">
+    <p class="field-hint">按北京时间计算，目标当天显示 0 天。</p>
+    <div class="dialog-actions"><button class="danger-button" id="clear-deadline" type="button" hidden>清除倒计时</button><div class="dialog-spacer"></div><button class="secondary-button" type="button" data-close>取消</button><button class="primary-button" type="submit">保存日期</button></div>
+  </form>
+</dialog>
+<dialog id="profile-dialog">
+  <div class="dialog-header"><h2>使用者</h2><button type="button" class="icon-button" data-close data-icon="close" aria-label="关闭"></button></div>
+  <p class="profile-help">日程、倒计时和复盘会自动保存在当前浏览器。共用一个浏览器时，可以新增不同使用者，各自记录。</p>
+  <div class="profile-list" id="profile-list"></div>
+  <section class="profile-backup" aria-label="日程备份">
+    <div class="profile-backup-actions">
+      <button class="secondary-button" id="backup-export" type="button">导出备份</button>
+      <button class="secondary-button" id="backup-import" type="button">导入备份</button>
+    </div>
+    <input id="backup-file" type="file" accept=".json,application/json" hidden>
+    <p class="profile-help">导入会新增使用者副本，保留现有日程。</p>
+    <p id="backup-status" class="form-error" role="status"></p>
+  </section>
+  <form id="profile-form">
+    <label for="profile-input">新增使用者</label>
+    <div class="profile-add"><input id="profile-input" maxlength="28" required placeholder="输入姓名或昵称"><button class="primary-button" type="submit"><span data-icon="plus"></span>新增</button></div>
+    <p class="form-error" id="profile-error" role="alert"></p>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
